@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+</head>
+<body>
+	<style type="text/css">
+		#game{
+			width: 600px;
+			height: 600px;
+			margin:0 auto;
+		}
+		.grid-container{
+			width: 460px;
+			height: 460px;
+			background-color: #bbada0;
+			border-radius: 10px;
+			position: relative;
+			padding: 20px;
+			margin: 50 auto;
+
+		}
+		.grid-cell{
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			border-radius: 6px;
+			background-color: rgb(212,199,186);
+		}
+		.num-cell{
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			border-radius: 6px;
+			font-size: 100px;
+			text-align: center;
+			line-height: 100px;
+		}
+	</style>
+	<div id="game">
+		<div class="grid-container">
+			<div class="grid-cell" id="grid-cell-0-0"></div>
+			<div class="grid-cell" id="grid-cell-0-1"></div>
+			<div class="grid-cell" id="grid-cell-0-2"></div>
+			<div class="grid-cell" id="grid-cell-0-3"></div>
+			<div class="grid-cell" id="grid-cell-1-0"></div>
+			<div class="grid-cell" id="grid-cell-1-1"></div>
+			<div class="grid-cell" id="grid-cell-1-2"></div>
+			<div class="grid-cell" id="grid-cell-1-3"></div>
+			<div class="grid-cell" id="grid-cell-2-0"></div>
+			<div class="grid-cell" id="grid-cell-2-1"></div>
+			<div class="grid-cell" id="grid-cell-2-2"></div>
+			<div class="grid-cell" id="grid-cell-2-3"></div>
+			<div class="grid-cell" id="grid-cell-3-0"></div>
+			<div class="grid-cell" id="grid-cell-3-1"></div>
+			<div class="grid-cell" id="grid-cell-3-2"></div>
+			<div class="grid-cell" id="grid-cell-3-3"></div>
+		</div>
+	</div>
+	
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+	<script type="text/javascript">
+		//数据存放在二维数组中
+		var dataArray=[];
+		$(function(){
+			//1.生成4*4的界面
+			initGame();
+		
+		});
+		$(document).keydown( function( e ){
+    		//e.preventDefault();
+    		if(e.keyCode==87 || e.keyCode==38){
+				//w --向上
+				moveUp();
+			}
+			if(e.keyCode==83 || e.keyCode==40){
+				//s--向下
+				moveDown();
+			}
+			if(e.keyCode==68 || e.keyCode==39){
+				//d--向右
+				moveRight();
+			}
+			if(e.keyCode==65 || e.keyCode==37){
+				//a--向左
+				moveLeft();
+			}
+		});
+		//初始化游戏
+		function initGame(){
+			for(var i=0;i<4;i++){
+				dataArray[i]=[];//初始化数组
+				for (var j = 0; j < 4; j++) {
+					dataArray[i][j]=0;//初始化数组
+					$("#grid-cell-"+i+"-"+j).css({
+						"top":getTop(i),
+						"left":getLeft(j)
+					})
+				}
+			}
+			//生成2个随机数
+			renderNum();
+			renderNum();
+			//更新游戏
+			updateGame();
+		}
+		//更新游戏
+		function updateGame(){
+			$(".num-cell").remove();
+			for(var i=0;i<4;i++){
+				for (var j = 0; j < 4; j++) {
+					var numCell= $("<div class='num-cell' id='num-cell-"+i+"-"+j+"'></div>");
+					if(dataArray[i][j]==0){
+						//当前位置没有值
+						numCell.css({
+							"width":"0",
+							"height":"0",
+							"top":getTop(i)+50,
+							"left":getLeft(j)+50
+						})
+					}else
+					{//当前位置有值
+						numCell.css({
+							"position":"absolute",
+							"width":"100",
+							"height":"100",
+							"top":getTop(i),
+							"left":getLeft(j),
+							"background-color":getBackColor(dataArray[i][j]),
+							"color":getForeColor(dataArray[i][j]),
+							"font-size":getFontSize(dataArray[i][j]);
+						});
+						numCell.text(dataArray[i][j]);
+					}
+					$(".grid-container").append(numCell);
+				}
+			}
+		}
+		//生成随机数字
+		function renderNum(){
+			//获取空格对象
+			var emptyCell=getEmptyCell();
+			if(emptyCell.length){
+				//获取随机的空单元格
+				var cell=  Math.floor(Math.random() *emptyCell.length) ;
+				var posX=cell.x;
+				var posY=cell.y;
+			
+				var num= Math.random();
+				//2,4,8出现的比例是6:3:1
+				if(num<0.1){
+					num=8;
+				}else if(num>=0.1 && num<0.4){
+					num=4;
+				}else{
+					num=2;
+				}
+				dataArray[posX][posY]=num;
+
+			}else{
+				alert("game over！");
+			}
+		}
+
+		//获取空格对象
+		function getEmptyCell(){
+			var emptyCell=[];
+			for(var i=0;i<4;i++){
+				for (var j = 0; j < 4; j++) {
+					if(dataArray[i][j]==0)
+						emptyCell.push({"x":i},"y":j);
+				}
+			}
+			return emptyCell;
+		}
+		//获取字体大小
+		function getFontSize(num){
+			if(num>=128){
+				return "80px";
+			}
+			//默认黑色
+			return "100px";
+		}
+		//前景色
+		function getForeColor(num){
+			if(num/2>16){//32开始前景色为白色
+				return "#FFF8E8";
+			}
+			//默认黑色
+			return "#877770";
+		}
+		//背景色
+		function getBackColor(num){
+			switch(num){
+				case 2:
+					return "#F2E6DD";
+				case 4:
+					return "#F1E4CF";
+				case 8:
+					return "#F7B77D";
+				case 16:
+					return "#FCC262";
+				case 32:
+					return "#FD7D60";
+			
+				break;
+			}
+		}
+		//获取上边距
+		function getTop(x){
+			return (x*120+20);
+		}
+		//获取左边距
+		function getLeft(y){
+			return (y*120+20);
+		}
+		//左移
+		function moveLeft(){
+		
+			for (var rowIndex = 0; rowIndex < 4; rowIndex++) {//每行
+				for (var colIndex= 0;colIndex < 4;colIndex++) {//每列
+					var Merge=1; //只能合并1次，比如 0 2 2 4，合并1次为4 4 0 0 ，否则为8 0 0 0
+					for (var i = colIndex+1; i < 4; i++) {//每个单元格
+					
+						if(dataArray[rowIndex][i]!=0 && noEmptyRow(rowIndex,colIndex,i) ){//待处理单元格不为0，且和当前单元格之间全部为空
+
+							if(Merge && (dataArray[rowIndex][colIndex]==dataArray[rowIndex][i] || dataArray[rowIndex][colIndex]==0)){//尚未合并过，且 （当前单元格值和后一个相等；或当前单元格值为0）
+								dataArray[rowIndex][colIndex] += dataArray[rowIndex][i];
+								dataArray[rowIndex][i]=0;
+								Merge--;
+								$("#num-cell-"+rowIndex+"-"+i).animate({
+								    left:getLeft((colIndex))
+								},200);
+							}else if(i-colIndex>1){
+								//待处理单元格移到当前单元格的右边
+								dataArray[rowIndex][colIndex+1]=dataArray[rowIndex][i];
+								dataArray[rowIndex][i]=0;
+								$("#num-cell-"+rowIndex+"-"+i).animate({
+									left:getLeft((colIndex+1))
+								},200);
+							}
+						}
+					}
+				}
+			}
+			setTimeout(function(){
+				renderNum();
+				updateGame();
+			},200)
+		}
+		//右移  [0,0,2,0]
+		function moveRight(){
+			for (var rowIndex = 0; rowIndex < 4; rowIndex++) {//每行
+				for(var colIndex=3;colIndex>0;colIndex--){//每列
+					var Merge=1; //只能合并2次，比如 0 2 2 4，合并1次为4 4 0 0 ，多次为8 0 0 0
+					for(var i=colIndex-1;i>=0;i--){//每个单元格
+						if(dataArray[rowIndex][i]!=0 && noEmptyRow(rowIndex,colIndex,i)){
+							//待处理单元格不为0，且和当前单元格之间全部为空
+							if(Merge && (dataArray[rowIndex][colIndex]==dataArray[rowIndex][i] || dataArray[rowIndex][colIndex]==0)){//当前单元格值和后一个相等；或当前单元格值为0
+								dataArray[rowIndex][colIndex] += dataArray[rowIndex][i];
+								dataArray[rowIndex][i]=0;
+								Merge--;
+								$("#num-cell-"+rowIndex+"-"+i).animate({
+									left:getLeft((colIndex))
+								},200);
+							}else if(colIndex-i>1){
+								//待处理单元格移到当前单元格的右边
+								dataArray[rowIndex][colIndex-1]=dataArray[rowIndex][i];
+								dataArray[rowIndex][i]=0;
+								$("#num-cell-"+rowIndex+"-"+i).animate({
+									left:getLeft((colIndex-1))
+								},200);
+							}
+						}
+					}
+				}
+			}
+			setTimeout(function(){
+
+				renderNum();
+				updateGame();
+			},200)
+		}
+		//上移  
+		function moveUp(){
+			for(var colIndex=0;colIndex<4;colIndex++){
+				for(var rowIndex=0;rowIndex<4;rowIndex++){
+					var Merge=1;
+					for(var i=rowIndex+1;i<4;i++){
+						if(dataArray[i][colIndex]!=0 && noEmptyCol(colIndex,rowIndex,i) ){
+							if(Merge && (dataArray[i][colIndex]==dataArray[rowIndex][colIndex] || dataArray[rowIndex][colIndex]==0)){
+								//当前单元格值和后一个相等；或当前单元格值为0
+								dataArray[rowIndex][colIndex]+= dataArray[i][colIndex];
+								dataArray[i][colIndex]=0;
+								Merge--;
+								$("#num-cell-"+i+"-"+colIndex).animate({
+									top:getTop((rowIndex))
+								},200);
+							}else if(i-rowIndex>1){
+								//待处理单元格移到当前单元格的下边
+								dataArray[rowIndex+1][colIndex]=dataArray[i][colIndex];
+								dataArray[i][colIndex]=0;
+								$("#num-cell-"+i+"-"+colIndex).animate({
+									top:getTop((rowIndex+1))
+								},200);
+							}
+						}
+					}
+				}
+			}
+			setTimeout(function(){
+
+				renderNum();
+				updateGame();
+			},200)
+			
+		}
+		//下移
+		function moveDown(){
+			for(var colIndex=0;colIndex<4;colIndex++){
+				for(var rowIndex=3;rowIndex>0;rowIndex--){
+					var Merge=1;
+					for(var i=rowIndex-1;i>=0;i--){
+						if(dataArray[i][colIndex]!=0 && noEmptyCol(colIndex,rowIndex,i) ){
+							if(Merge && (dataArray[i][colIndex]==dataArray[rowIndex][colIndex] || dataArray[rowIndex][colIndex]==0)){
+								//当前单元格值和后一个相等；或当前单元格值为0
+								dataArray[rowIndex][colIndex]+= dataArray[i][colIndex];
+								dataArray[i][colIndex]=0;
+								Merge--;
+								$("#num-cell-"+i+"-"+colIndex).animate({
+									top:getTop((rowIndex))
+								},50);
+							}else if(rowIndex-i>1){
+								//待处理单元格移到当前单元格的下边
+								dataArray[rowIndex-1][colIndex]=dataArray[i][colIndex];
+								dataArray[i][colIndex]=0;
+								$("#num-cell-"+i+"-"+colIndex).animate({
+									top:getTop((rowIndex-1))
+							    },50);
+							}
+						}
+					}
+				}
+			}
+			setTimeout(function(){
+
+				renderNum();
+				updateGame();
+			},200)
+			
+		}
+		
+			//判断某列的 两行之间是否全部是0
+		function noEmptyCol(col,row,index){
+			if(row<index){//下移
+				for (var i = row+1; i <index; i++) {
+					if(dataArray[i][col]!=0){
+						return false;
+					}
+				}
+				return true;
+			}else{//上移
+				for (var i = index+1; i <row; i++) {
+					if(dataArray[i][col]!=0){
+						return false;
+					}
+				}
+				return true;
+			}
+			
+		}
+		//判断某行的 两列之间是否全部是0
+		function noEmptyRow(row,col,index){
+			if(col<index){//左移
+				for (var i = col+1; i <index; i++) {
+					if(dataArray[row][i]!=0){
+						return false;
+					}
+				}
+				return true;
+			}else{//右移
+				for (var i = index+1; i <col; i++) {
+					if(dataArray[row][i]!=0){
+						return false;
+					}
+				}
+				return true;
+			}
+			
+		}
+	</script>
+</body>
+</html>
