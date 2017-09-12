@@ -129,7 +129,7 @@
 							"left":getLeft(j),
 							"background-color":getBackColor(dataArray[i][j]),
 							"color":getForeColor(dataArray[i][j]),
-							"font-size":getFontSize(dataArray[i][j]);
+							"font-size":getFontSize(dataArray[i][j])
 						});
 						numCell.text(dataArray[i][j]);
 					}
@@ -144,8 +144,8 @@
 			if(emptyCell.length){
 				//获取随机的空单元格
 				var cell=  Math.floor(Math.random() *emptyCell.length) ;
-				var posX=cell.x;
-				var posY=cell.y;
+				var posX=emptyCell[cell].x;
+				var posY=emptyCell[cell].y;
 			
 				var num= Math.random();
 				//2,4,8出现的比例是6:3:1
@@ -169,7 +169,7 @@
 			for(var i=0;i<4;i++){
 				for (var j = 0; j < 4; j++) {
 					if(dataArray[i][j]==0)
-						emptyCell.push({"x":i},"y":j);
+						emptyCell.push({"x":i,"y":j});
 				}
 			}
 			return emptyCell;
